@@ -19,8 +19,7 @@ Renderer::Renderer() {
         throw std::runtime_error("Failed to initialize GLAD");
     }
 
-    mGui = std::make_unique<Gui>(mWindow->nativeHandle(),
-                                 mWindow->glContext());
+    mGui = std::make_unique<Gui>(mWindow->nativeHandle(), mWindow->glContext());
     // Tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
     stbi_set_flip_vertically_on_load(true);
 
@@ -102,24 +101,22 @@ Renderer::Renderer() {
 
 void Renderer::render(const glm::mat4& view, const glm::mat4& projection,
                       const std::unordered_map<std::string, Cell>& aliveCells) const {
-    // Setup model matrices
-    std::vector<glm::mat4> modelMatrices;
-    for (const auto& [_, cell]: aliveCells) {
-        auto model = glm::mat4(1.0f);
-        model = glm::translate(model, cell.pos());
 
-        modelMatrices.push_back(model);
-    }
-
-    cellMesh->setupInstancing(modelMatrices);
+	auto skyview = glm::mat4(glm::mat3(view));
+	skybox->render(skyview, projection);
 
     cellShader->activate();
     cellShader->setMat4("view", view);
     cellShader->setMat4("projection", projection);
-    cellMesh->draw();
 
-    auto skyview = glm::mat4(glm::mat3(view));
-    skybox->render(skyview, projection);
+	for (const auto& [_, cell]: aliveCells) {
+		auto model = glm::mat4(1.0f);
+		model = glm::translate(model, cell.pos());
+
+		cellShader->setMat4("model", model);
+		cellMesh->draw();
+	}
+
 }
 
 void Renderer::clear(float r, float g, float b, float a) {

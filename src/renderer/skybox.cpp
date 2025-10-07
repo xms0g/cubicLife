@@ -76,7 +76,7 @@ Skybox::Skybox() {
 
 Skybox::~Skybox() = default;
 
-void Skybox::render(const glm::mat4& view, const glm::mat4& projection) {
+void Skybox::render(const glm::mat4& view, const glm::mat4& projection) const {
     mShader->activate();
     mShader->setMat4("view", view);
     mShader->setMat4("projection", projection);
